@@ -11,9 +11,9 @@ class Item:
         self.weight = weight
         self.value = value
     #
-    # def __repr__(self):
-    #     s = f"name: {self.name} | weight: {self.weight} | value: {self.value}"
-    #     return s
+    def __repr__(self):
+        s = f"name: {self.name} | weight: {self.weight} | value: {self.value}"
+        return s
 
 
 class Bag:
@@ -49,6 +49,7 @@ def create_items(list_size):
         items.append(Item(chr(i + 65), w, val))
 
     return items
+# def print_items2():
 
 
 def print_items(items):
@@ -61,7 +62,7 @@ def print_items(items):
 # calculate the weight and fitness of each Bag
 def weight_and_fitness(pop, items, wght):
     #print_items(pop)
-    print(pop[0].name)
+    # print(pop[0].name)
     # print("here")
     for p in pop:
         w = 0
@@ -71,17 +72,14 @@ def weight_and_fitness(pop, items, wght):
                 w += items[i].weight
                 v += items[i].value
         p.weight = w
-        p.fitness = v if wght > w else v - 100
+        p.fitness = v if wght > w else v *-1
 
     return pop
 
 
 # genetic algorithm logic
 def ga(pop, pop_size):
-    #select which parents are going to reproduce
     n = 1000
-    rand = random.random() * n
-    # if rand < (n * 0.95):
     crossover(pop, pop_size)
     return pop
 
@@ -91,10 +89,9 @@ def crossover(pop, pop_size):
     k = len(pop[0].name)
     new_pop = []
 
-    first = random.randint(0,pop_size-1)
-    second = random.randint(0, pop_size-1)
+    first = random.randint(0,pop_size-2)
+    second = random.randint(0, pop_size-2)
     while second == first:
-        # print("Oopsie")
         second = random.randint(0, pop_size)
     # print("first", first, " second", second )
     new1, new2 = uniform_crossover(pop[first], pop[second])
@@ -162,20 +159,29 @@ def cull_the_weak(pop, pop_size, new1, new2):
     # print("new l1", pop[l1index].name, " ", pop[l1index].fitness, " : ",  "new l2", pop[l2index].name, " ", pop[l2index].fitness)
     return pop
 
-def best(pop, pop_size):
+def best(pop, pop_size, item_list):
     bestIndex =10000000000
     best = 0
+    best_items = []
     for p in range(0, pop_size):
         if pop[p].fitness > best:
             best = pop[p].fitness
             bestIndex = p
+    for i, gene in enumerate(pop[bestIndex].name):
+        if gene == '1':
+            best_items.append(item_list[i])
+
     print("the best solution found had a weight of ", pop[bestIndex].weight, " and a total value of ", best)
     print(pop[bestIndex])
+    print("The items included were:")
+    for x in best_items:
+        print(x)
+
 def main():
 
     max_weight = 100
     population_size = 100
-    item_list_size = 7
+    item_list_size = 50
 
     item_list = create_items(item_list_size)
     print_items(item_list)
@@ -189,7 +195,7 @@ def main():
         population = ga(population, population_size)
         population = weight_and_fitness(population, item_list, max_weight)
         # print_items(population)
-    best(population, population_size)
+    best(population, population_size, item_list)
 
 if __name__ == "__main__":
     main()

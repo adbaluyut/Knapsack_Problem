@@ -78,34 +78,60 @@ def weight_and_fitness(pop, items, wght):
 
 
 # genetic algorithm logic
-def ga(pop, pop_size):
+def ga(pop, pop_size,item_list, max_weight, max_gens):
     n = 1000
-    crossover(pop, pop_size)
+    for x in range(0, max_gens):
+        crossover(pop, pop_size)
+        pop = weight_and_fitness(pop, item_list, max_weight)
+        # bestCross(pop, pop_size)
+        # pop = weight_and_fitness(pop, item_list, max_weight)
     return pop
+
+def bestCross(pop, pop_size):
+        l1 = 0
+        l2 = 0
+        l1index = 800 #random indexes
+        l2index = 800
+        for p in range(0, pop_size):
+            if pop[p].fitness > l1:
+                l1 = pop[p].fitness
+                l1index = p
+        for p in range(0, pop_size):
+            if pop[p].fitness > l2 and p != l1index:
+                l2 = pop[p].fitness
+                l2index = p
+        new1, new2 = uniform_crossover(pop[l1], pop[l2])
+        pop = cull_the_weak(pop, pop_size, new1, new2)
 
 
 # crossover logic //
 def crossover(pop, pop_size):
     k = len(pop[0].name)
     new_pop = []
-
-    first = random.randint(0,pop_size-2)
-    second = random.randint(0, pop_size-2)
-    while second == first:
-        second = random.randint(0, pop_size)
-    # print("first", first, " second", second )
+    first = random.randint(0,pop_size-1)
+    second = random.randint(0, pop_size-1)
+    isSame = False
+    if second == first:
+        isSame = True
+    while isSame == True:
+        second = random.randint(0, pop_size-1)
+        if second != first:
+            isSame = False
     new1, new2 = uniform_crossover(pop[first], pop[second])
-
     if random.random() * k < 1 / k:
-        # print("Mutating")
         new1.name = mutate(new1.name)
         new2.name = mutate(new2.name)
 
     pop = cull_the_weak(pop, pop_size, new1, new2)
-
     return pop
 
-
+def sum_items(item_list):
+    tv = 0
+    tw = 0
+    for item in item_list:
+        tv += item.value
+        tw += item.weight
+    return tv, tw
 # Uniform Crossover
 def uniform_crossover(parent1, parent2):
     child1 = ''
@@ -122,7 +148,6 @@ def uniform_crossover(parent1, parent2):
     new2 = Bag(child2,0,0)
     return new1, new2
 
-
 def mutate(binary):
     if binary != '':
         word = ""
@@ -138,7 +163,6 @@ def mutate(binary):
         return word
 
     return binary
-
 
 def cull_the_weak(pop, pop_size, new1, new2):
     l1 = 10000000000 # very large number
@@ -161,7 +185,7 @@ def cull_the_weak(pop, pop_size, new1, new2):
 
 def best(pop, pop_size, item_list):
     bestIndex =10000000000
-    best = 0
+    best = -10000000000000000000
     best_items = []
     for p in range(0, pop_size):
         if pop[p].fitness > best:
@@ -170,31 +194,31 @@ def best(pop, pop_size, item_list):
     for i, gene in enumerate(pop[bestIndex].name):
         if gene == '1':
             best_items.append(item_list[i])
-
-    print("the best solution found had a weight of ", pop[bestIndex].weight, " and a total value of ", best)
-    print(pop[bestIndex])
-    print("The items included were:")
+    print("The best solution was: ", pop[bestIndex].name)
+    print("It had a weight of ", pop[bestIndex].weight, " and a total value of ", best)
+    print("The items included in the solution were:")
     for x in best_items:
         print(x)
 
 def main():
 
-    max_weight = 100
-    population_size = 100
+    max_weight = 300
+    population_size = 500
     item_list_size = 50
+    max_gens = 20000
 
     item_list = create_items(item_list_size)
     print_items(item_list)
-
+    tv, tw = sum_items(item_list)
+    print("Item list :: Total Weight:", tw, "Total Value:", tv)
     population = create_population(population_size, len(item_list))
 
     population = weight_and_fitness(population, item_list, max_weight)
 
-    # print(population)
-    for x in range(0,1000):
-        population = ga(population, population_size)
-        population = weight_and_fitness(population, item_list, max_weight)
-        # print_items(population)
+
+    population = ga(population, population_size, item_list, max_weight, max_gens)
+    # print_items(population)
+
     best(population, population_size, item_list)
 
 if __name__ == "__main__":

@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import math
 import random
 
@@ -10,7 +8,7 @@ class Item:
         self.name = name
         self.weight = weight
         self.value = value
-    #
+ 
     def __repr__(self):
         s = f"name: {self.name} | weight: {self.weight} | value: {self.value}"
         return s
@@ -45,11 +43,10 @@ def create_items(list_size):
     items = []
     for i in range(list_size):
         w = random.randint(0, 60)
-        val = random.randint(1, 10) # there is probably a better way to assign
+        val = random.randint(1, 10)
         items.append(Item(chr(i + 65), w, val))
 
     return items
-# def print_items2():
 
 
 def print_items(items):
@@ -61,9 +58,6 @@ def print_items(items):
 
 # calculate the weight and fitness of each Bag
 def weight_and_fitness(pop, items, wght):
-    #print_items(pop)
-    # print(pop[0].name)
-    # print("here")
     for p in pop:
         w = 0
         v = 0
@@ -80,12 +74,14 @@ def weight_and_fitness(pop, items, wght):
 # genetic algorithm logic
 def ga(pop, pop_size,item_list, max_weight, max_gens):
     n = 1000
-    for x in range(0, max_gens):
-        crossover(pop, pop_size)
+    for x in range(0, max_gens):        
+        rand = random.random() * n
+        if rand < (n * 0.95):
+            pop = crossover(pop, pop_size)
         pop = weight_and_fitness(pop, item_list, max_weight)
-        # bestCross(pop, pop_size)
-        # pop = weight_and_fitness(pop, item_list, max_weight)
+        
     return pop
+
 
 def bestCross(pop, pop_size):
         l1 = 0
@@ -104,7 +100,7 @@ def bestCross(pop, pop_size):
         pop = cull_the_weak(pop, pop_size, new1, new2)
 
 
-# crossover logic //
+# crossover logic
 def crossover(pop, pop_size):
     k = len(pop[0].name)
     new_pop = []
@@ -125,6 +121,7 @@ def crossover(pop, pop_size):
     pop = cull_the_weak(pop, pop_size, new1, new2)
     return pop
 
+
 def sum_items(item_list):
     tv = 0
     tw = 0
@@ -132,6 +129,8 @@ def sum_items(item_list):
         tv += item.value
         tw += item.weight
     return tv, tw
+
+
 # Uniform Crossover
 def uniform_crossover(parent1, parent2):
     child1 = ''
@@ -147,6 +146,7 @@ def uniform_crossover(parent1, parent2):
     new1 = Bag(child1, 0, 0)
     new2 = Bag(child2,0,0)
     return new1, new2
+
 
 def mutate(binary):
     if binary != '':
@@ -164,6 +164,7 @@ def mutate(binary):
 
     return binary
 
+
 def cull_the_weak(pop, pop_size, new1, new2):
     l1 = 10000000000 # very large number
     l2 = 10000000000
@@ -177,11 +178,10 @@ def cull_the_weak(pop, pop_size, new1, new2):
         if pop[p].fitness < l2 and p != l1index:
             l2 = pop[p].fitness
             l2index = p
-    # print("old l1", pop[l1index].name, " ", pop[l1index].fitness, " : ",  "old l2", pop[l2index].name, " ", pop[l2index].fitness)
     pop[l1index] = new1
     pop[l2index] = new2
-    # print("new l1", pop[l1index].name, " ", pop[l1index].fitness, " : ",  "new l2", pop[l2index].name, " ", pop[l2index].fitness)
     return pop
+
 
 def best(pop, pop_size, item_list):
     bestIndex =10000000000
@@ -200,6 +200,7 @@ def best(pop, pop_size, item_list):
     for x in best_items:
         print(x)
 
+
 def main():
 
     max_weight = 300
@@ -215,9 +216,7 @@ def main():
 
     population = weight_and_fitness(population, item_list, max_weight)
 
-
     population = ga(population, population_size, item_list, max_weight, max_gens)
-    # print_items(population)
 
     best(population, population_size, item_list)
 
